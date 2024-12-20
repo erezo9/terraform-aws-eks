@@ -237,10 +237,26 @@ locals {
     }
   }
 
+  eks_auto_mode_node_role_permission = {
+    cluster_creator = {
+      principal_arn = try(aws_iam_role.eks_auto[0].arn, "")
+      type          = "EC2"
+
+      policy_associations = {
+        AmazonEKSAutoNodePolicy = {
+          policy_arn = "arn:${local.partition}:eks::aws:cluster-access-policy/AmazonEKSAutoNodePolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
+
   # Merge the bootstrap behavior with the entries that users provide
   merged_access_entries = merge(
     { for k, v in local.bootstrap_cluster_creator_admin_permissions : k => v if var.enable_cluster_creator_admin_permissions },
-    var.access_entries,
+    var.access_entries, { for k, v in local.eks_auto_mode_node_role_permission : k => v if var.associate_node_iam_role }
   )
 
   # Flatten out entries and policy associations so users can specify the policy

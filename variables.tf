@@ -626,6 +626,12 @@ variable "node_iam_role_tags" {
   default     = {}
 }
 
+variable "associate_node_iam_role" {
+  description = "Determines whether the EKS Auto node IAM role should be associated as access entry"
+  type        = string
+  default     = false
+}
+
 ################################################################################
 # Fargate
 ################################################################################
